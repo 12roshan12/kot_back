@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 19, 2022 at 12:53 PM
+-- Generation Time: Jul 19, 2022 at 06:57 PM
 -- Server version: 10.4.24-MariaDB
 -- PHP Version: 8.1.6
 
@@ -29,7 +29,8 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `avail_status` (
   `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL
+  `name` varchar(100) NOT NULL,
+  `status_relation` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -40,8 +41,8 @@ CREATE TABLE `avail_status` (
 
 CREATE TABLE `avail_table` (
   `id` int(11) NOT NULL,
-  `unique_id` varchar(20) NOT NULL,
-  `capacity` int(11) NOT NULL,
+  `table_id` varchar(20) NOT NULL,
+  `total_pax_capacity` int(11) NOT NULL,
   `current_pax_no` int(11) NOT NULL DEFAULT 0,
   `table_status` int(11) NOT NULL DEFAULT 5,
   `active_status` int(11) NOT NULL DEFAULT 1,
@@ -56,7 +57,8 @@ CREATE TABLE `avail_table` (
 
 CREATE TABLE `avail_type` (
   `id` int(11) NOT NULL,
-  `name` varchar(100) NOT NULL
+  `name` varchar(100) NOT NULL,
+  `type_relation` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -67,8 +69,8 @@ CREATE TABLE `avail_type` (
 
 CREATE TABLE `bill` (
   `id` int(11) NOT NULL,
-  `order_id` int(11) NOT NULL,
-  `received_by` varchar(20) NOT NULL,
+  `dine_group_id` int(11) NOT NULL,
+  `payment_received_by` varchar(20) NOT NULL,
   `generated_by` varchar(20) NOT NULL,
   `generated_on` datetime NOT NULL DEFAULT current_timestamp(),
   `bill_discount` int(11) DEFAULT NULL,
@@ -102,11 +104,25 @@ CREATE TABLE `category` (
 
 CREATE TABLE `customer` (
   `id` int(11) NOT NULL,
-  `unique_id` varchar(20) NOT NULL,
+  `customer_id` varchar(20) NOT NULL,
   `name` varchar(100) NOT NULL,
   `address` varchar(100) NOT NULL,
   `phone` varchar(15) NOT NULL,
   `email` varchar(50) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `dine_group`
+--
+
+CREATE TABLE `dine_group` (
+  `id` int(11) NOT NULL,
+  `order_id` int(11) NOT NULL,
+  `dine_group_status` int(11) NOT NULL DEFAULT 1,
+  `group_created_on` datetime NOT NULL DEFAULT current_timestamp(),
+  `group_closed_on` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -234,7 +250,7 @@ ALTER TABLE `avail_status`
 --
 ALTER TABLE `avail_table`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unq_avail_table_unique_id` (`unique_id`),
+  ADD UNIQUE KEY `unq_avail_table_unique_id` (`table_id`),
   ADD KEY `fk_avail_table_hall` (`hall_id`);
 
 --
@@ -248,8 +264,8 @@ ALTER TABLE `avail_type`
 --
 ALTER TABLE `bill`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `fk_bill_orders` (`order_id`),
-  ADD KEY `fk_bill_staff` (`generated_by`);
+  ADD KEY `fk_bill_staff` (`generated_by`),
+  ADD KEY `fk_bill_dine_group` (`dine_group_id`);
 
 --
 -- Indexes for table `category`
@@ -263,7 +279,14 @@ ALTER TABLE `category`
 --
 ALTER TABLE `customer`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `unq_customer_unique_id` (`unique_id`);
+  ADD UNIQUE KEY `unq_customer_unique_id` (`customer_id`);
+
+--
+-- Indexes for table `dine_group`
+--
+ALTER TABLE `dine_group`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_dine_group_orders` (`order_id`);
 
 --
 -- Indexes for table `hall`
@@ -331,15 +354,21 @@ ALTER TABLE `avail_table`
 -- Constraints for table `bill`
 --
 ALTER TABLE `bill`
-  ADD CONSTRAINT `fk_bill_orders` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_bill_dine_group` FOREIGN KEY (`dine_group_id`) REFERENCES `dine_group` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_bill_staff` FOREIGN KEY (`generated_by`) REFERENCES `staff` (`staff_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+--
+-- Constraints for table `dine_group`
+--
+ALTER TABLE `dine_group`
+  ADD CONSTRAINT `fk_dine_group_orders` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
 -- Constraints for table `kot`
 --
 ALTER TABLE `kot`
   ADD CONSTRAINT `fk_kot_avail_status` FOREIGN KEY (`kot_status_id`) REFERENCES `avail_status` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_kot_avail_table` FOREIGN KEY (`table_id`) REFERENCES `avail_table` (`unique_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_kot_avail_table` FOREIGN KEY (`table_id`) REFERENCES `avail_table` (`table_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_kot_avail_type` FOREIGN KEY (`kot_type_id`) REFERENCES `avail_type` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_kot_orders` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_kot_staff` FOREIGN KEY (`staff_id`) REFERENCES `staff` (`staff_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
@@ -356,8 +385,8 @@ ALTER TABLE `menu_items`
 --
 ALTER TABLE `orders`
   ADD CONSTRAINT `fk_orders_avail_status` FOREIGN KEY (`status_id`) REFERENCES `avail_status` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_orders_avail_table` FOREIGN KEY (`table_id`) REFERENCES `avail_table` (`unique_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_orders_customer` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`unique_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_orders_avail_table` FOREIGN KEY (`table_id`) REFERENCES `avail_table` (`table_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_orders_customer` FOREIGN KEY (`customer_id`) REFERENCES `customer` (`customer_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_orders_menu_items` FOREIGN KEY (`items_id`) REFERENCES `menu_items` (`item_id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   ADD CONSTRAINT `fk_orders_staff` FOREIGN KEY (`staff_id`) REFERENCES `staff` (`staff_id`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 COMMIT;
