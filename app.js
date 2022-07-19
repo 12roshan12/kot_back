@@ -1,14 +1,25 @@
-const http = require('http');
+const express = require('express')
+const db = require('./db/db')
+const Itemsroutes = require('./routes/demo.route');
+var body = require('body-parser');
 
-const hostname = '127.0.0.1';
-const port = 3000;
+const app = express()
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World');
-});
+// db.connect()
 
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
+
+app.use(express.json())
+app.use(express.urlencoded({extended: true}));
+
+app.use('/demo', Itemsroutes);
+
+
+app.use(body.json());
+app.use(body.urlencoded(
+  {extended: true}
+));
+
+
+app.listen(8000, () => {
+  console.log('Server started!')
+})
