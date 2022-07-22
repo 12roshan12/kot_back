@@ -4,4 +4,6 @@ const { CInsertKot } = require('../controller/kot.controller');
 
 router.post('/add', CInsertKot);
 
+
+
 module.exports = router;

@@ -1,6 +1,4 @@
-const { MMenuItemInsert } = require('../models/menuItem.model')
-
-
+const { MMenuItemInsert,MMenuItemUpdate,MMenuItemDelete,MMenuItemGet } = require('../models/menuItem.model')
 
 const CMenuItemInsert = async(req)=>{
     const result = await MMenuItemInsert(req.body)
@@ -12,5 +10,46 @@ const CMenuItemInsert = async(req)=>{
     }
 }
 
+const CMenuItemUpdate = async (req, res, next) => {
 
-module.exports = { CMenuItemInsert }
+    const result = await MMenuItemUpdate(req.body)
+
+    console.log(result)
+    if (result.error == null) {
+        res.send({ error:null ,data: result })
+    }
+    else {
+        res.send({ error:result.err , data: null })
+    }
+
+}
+
+const CMenuItemDelete = async (req, res, next) => {
+
+    const result = await MMenuItemDelete(req.body)
+
+    console.log(result)
+    if (result.error == null) {
+        res.send({ error:null ,data: result })
+    }
+    else {
+        res.send({ error:result.err , data: null })
+    }
+
+}
+
+const CMenuItemGet = async (req, res, next) => {
+
+    const result = await MMenuItemGet(req.body)
+
+    console.log(result)
+    if (result.error == null) {
+        res.send({ error:null ,data: result })
+    }
+    else {
+        res.send({ error:result.err , data: null })
+    }
+
+}
+
+module.exports = { CMenuItemInsert,CMenuItemDelete,CMenuItemGet,CMenuItemUpdate }
