@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="MySql" id="Project-83" database="MySql" >
+	<schema name="kot" >
+		<table name="avail_status" >
+			<column name="id" type="INT" jt="4" mandatory="y" />
+			<column name="name" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="status_relation" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<index name="pk_avail_status" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="avail_table" >
+			<column name="id" type="INT" jt="4" mandatory="y" />
+			<column name="table_id" prior="unique_id" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="total_pax_capacity" prior="capacity" type="INT" jt="4" mandatory="y" />
+			<column name="hall_id" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="current_pax_no" type="INT" jt="4" mandatory="y" >
+				<defo><![CDATA[0]]></defo>
+			</column>
+			<column name="table_status" type="INT" length="1" jt="4" mandatory="y" >
+				<defo><![CDATA[5]]></defo>
+			</column>
+			<column name="active_status" type="INT" length="1" jt="4" mandatory="y" >
+				<defo><![CDATA[1]]></defo>
+			</column>
+			<index name="pk_avail_table" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="unq_avail_table_unique_id" unique="UNIQUE_KEY" >
+				<column name="table_id" />
+			</index>
+			<fk name="fk_avail_table_hall" to_schema="kot" to_table="hall" >
+				<fk_column name="hall_id" pk="hall_id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="avail_type" >
+			<column name="id" type="INT" jt="4" mandatory="y" />
+			<column name="name" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="type_relation" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<index name="pk_avail_type" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="bill" >
+			<column name="id" type="INT" jt="4" mandatory="y" />
+			<column name="bill_no" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="dine_group_id" prior="order_id" type="INT" jt="4" mandatory="y" />
+			<column name="generated_by" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="generated_on" type="DATETIME" jt="93" mandatory="y" >
+				<defo><![CDATA[current_timestamp()]]></defo>
+			</column>
+			<column name="bill_discount" type="INT" jt="4" />
+			<column name="service_tax" type="INT" jt="4" />
+			<column name="service_charge" type="INT" jt="4" />
+			<column name="promo_code" type="VARCHAR" length="20" jt="12" />
+			<column name="grand_total" type="INT" jt="4" mandatory="y" />
+			<column name="payment_status" type="VARCHAR" length="5" jt="12" mandatory="y" />
+			<column name="payment_date" type="DATETIME" jt="93" />
+			<column name="payment_received_by" prior="received_by" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<index name="pk_bill" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="fk_bill_staff" to_schema="kot" to_table="staff" >
+				<fk_column name="generated_by" pk="staff_id" />
+			</fk>
+			<fk name="fk_bill_dine_group" to_schema="kot" to_table="dine_group" >
+				<fk_column name="dine_group_id" pk="id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="category" >
+			<column name="id" type="INT" jt="4" mandatory="y" />
+			<column name="category_id" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="category_name" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="active_status" prior="status" type="INT" length="1" jt="4" mandatory="y" >
+				<defo><![CDATA[1]]></defo>
+			</column>
+			<index name="pk_category" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="unq_category_category_id" unique="UNIQUE_KEY" >
+				<column name="category_id" />
+			</index>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="customer" >
+			<column name="id" type="INT" jt="4" mandatory="y" />
+			<column name="customer_id" prior="unique_id" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="name" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="address" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="phone" type="VARCHAR" length="15" jt="12" mandatory="y" />
+			<column name="email" type="VARCHAR" length="50" jt="12" />
+			<index name="pk_customer" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="unq_customer_unique_id" unique="UNIQUE_KEY" >
+				<column name="customer_id" />
+			</index>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="dine_group" >
+			<column name="id" type="INT" jt="4" mandatory="y" />
+			<column name="order_id" type="INT" jt="4" mandatory="y" />
+			<column name="group_created_on" prior="group_createdon" type="DATETIME" jt="93" mandatory="y" >
+				<defo><![CDATA[CURRENT_TIMESTAMP]]></defo>
+			</column>
+			<column name="group_closed_on" type="DATETIME" jt="93" />
+			<column name="dine_group_status" type="INT" length="1" jt="4" mandatory="y" >
+				<defo><![CDATA[1]]></defo>
+			</column>
+			<index name="pk_dine_group" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="fk_dine_group_orders" to_schema="kot" to_table="orders" >
+				<fk_column name="order_id" pk="id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="hall" >
+			<column name="id" type="INT" jt="4" mandatory="y" />
+			<column name="hall_id" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="hall_name" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="active_status" prior="hall_status" type="INT" length="1" jt="4" mandatory="y" >
+				<defo><![CDATA[1]]></defo>
+			</column>
+			<index name="pk_hall" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="unq_hall_hall_id" unique="UNIQUE_KEY" >
+				<column name="hall_id" />
+			</index>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="items_inventory" >
+			<column name="id" type="INT" jt="4" mandatory="y" />
+			<column name="items_id" type="VARCHAR" length="50" jt="12" mandatory="y" />
+			<column name="items_name" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="vendor_name" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="added_by" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="added_on" type="DATETIME" jt="93" mandatory="y" >
+				<defo><![CDATA[CURRENT_TIMESTAMP]]></defo>
+			</column>
+			<column name="updated_by" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="updated_on" type="DATETIME" jt="93" mandatory="y" >
+				<defo><![CDATA[CURRENT_TIMESTAMP]]></defo>
+			</column>
+			<index name="pk_items_inventory" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="unq_items_inventory_items_id" unique="UNIQUE_KEY" >
+				<column name="items_id" />
+			</index>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="kot" >
+			<column name="id" type="INT" jt="4" mandatory="y" />
+			<column name="table_id" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="kot_status_id" type="INT" jt="4" mandatory="y" >
+				<defo><![CDATA[0]]></defo>
+			</column>
+			<column name="kot_type_id" type="INT" jt="4" mandatory="y" />
+			<column name="order_id" type="INT" jt="4" mandatory="y" />
+			<column name="staff_id" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="kot_id" type="INT" jt="4" mandatory="y" />
+			<column name="created_on" type="DATETIME" jt="93" mandatory="y" >
+				<defo><![CDATA[current_timestamp()]]></defo>
+			</column>
+			<column name="created_by" type="VARCHAR" length="50" jt="12" mandatory="y" />
+			<index name="pk_kot" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="fk_kot_avail_status" to_schema="kot" to_table="avail_status" >
+				<fk_column name="kot_status_id" pk="id" />
+			</fk>
+			<fk name="fk_kot_avail_type" to_schema="kot" to_table="avail_type" >
+				<fk_column name="kot_type_id" pk="id" />
+			</fk>
+			<fk name="fk_kot_avail_table" to_schema="kot" to_table="avail_table" >
+				<fk_column name="table_id" pk="table_id" />
+			</fk>
+			<fk name="fk_kot_orders" to_schema="kot" to_table="orders" >
+				<fk_column name="order_id" pk="id" />
+			</fk>
+			<fk name="fk_kot_staff" to_schema="kot" to_table="staff" >
+				<fk_column name="staff_id" pk="staff_id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="menu_items" >
+			<column name="id" type="INT" jt="4" mandatory="y" />
+			<column name="item_category" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="item_id" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="item_name" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="isbeverage" type="INT" jt="4" mandatory="y" >
+				<defo><![CDATA[0]]></defo>
+			</column>
+			<column name="beverage_item_id" type="VARCHAR" length="50" jt="12" />
+			<column name="price" type="INT" jt="4" mandatory="y" />
+			<column name="active_status" type="INT" length="11" jt="4" mandatory="y" >
+				<defo><![CDATA[1]]></defo>
+			</column>
+			<column name="created_by" type="VARCHAR" length="50" jt="12" />
+			<column name="created_on" type="DATETIME" jt="93" mandatory="y" >
+				<defo><![CDATA[current_timestamp()]]></defo>
+			</column>
+			<column name="updated_by" type="VARCHAR" length="50" jt="12" mandatory="y" />
+			<column name="updated_on" type="DATETIME" jt="93" mandatory="y" >
+				<defo><![CDATA[current_timestamp()]]></defo>
+			</column>
+			<index name="pk_menu_items" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="unq_menu_items_item_id" unique="UNIQUE_KEY" >
+				<column name="item_id" />
+			</index>
+			<fk name="fk_menu_items_items_inventory" to_schema="kot" to_table="items_inventory" >
+				<fk_column name="beverage_item_id" pk="items_id" />
+			</fk>
+			<fk name="fk_menu_items_category" to_schema="kot" to_table="category" >
+				<fk_column name="item_category" pk="category_id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="orders" prior="order_table" >
+			<column name="id" type="INT" jt="4" mandatory="y" />
+			<column name="items_id" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="customer_id" type="VARCHAR" length="20" jt="12" />
+			<column name="staff_id" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="status_id" type="INT" length="1" jt="4" mandatory="y" >
+				<defo><![CDATA[0]]></defo>
+			</column>
+			<column name="quantity" type="VARCHAR" length="10" jt="12" mandatory="y" />
+			<column name="placed_on" type="DATETIME" jt="93" >
+				<defo><![CDATA[current_timestamp()]]></defo>
+			</column>
+			<column name="table_id" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="prepared_on" type="DATETIME" jt="93" />
+			<index name="pk_order_table" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<fk name="fk_orders_customer" to_schema="kot" to_table="customer" >
+				<fk_column name="customer_id" pk="customer_id" />
+			</fk>
+			<fk name="fk_orders_menu_items" to_schema="kot" to_table="menu_items" >
+				<fk_column name="items_id" pk="item_id" />
+			</fk>
+			<fk name="fk_orders_staff" to_schema="kot" to_table="staff" >
+				<fk_column name="staff_id" pk="staff_id" />
+			</fk>
+			<fk name="fk_orders_avail_status" to_schema="kot" to_table="avail_status" >
+				<fk_column name="status_id" pk="id" />
+			</fk>
+			<fk name="fk_orders_avail_table" to_schema="kot" to_table="avail_table" >
+				<fk_column name="table_id" pk="table_id" />
+			</fk>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+		<table name="staff" >
+			<column name="id" type="INT" jt="4" mandatory="y" />
+			<column name="staff_id" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="name" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="address" type="VARCHAR" length="100" jt="12" mandatory="y" />
+			<column name="phone_number" type="VARCHAR" length="15" jt="12" mandatory="y" />
+			<column name="position" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="isadmin" type="TINYINT" length="1" jt="-6" mandatory="y" />
+			<column name="issuperuser" type="TINYINT" length="1" jt="-6" mandatory="y" />
+			<column name="user_type" type="VARCHAR" length="20" jt="12" mandatory="y" />
+			<column name="active_status" type="INT" length="1" jt="4" mandatory="y" >
+				<defo><![CDATA[1]]></defo>
+			</column>
+			<column name="created_by" type="VARCHAR" length="50" jt="12" mandatory="y" />
+			<column name="created_on" type="DATETIME" jt="93" mandatory="y" >
+				<defo><![CDATA[current_timestamp()]]></defo>
+			</column>
+			<column name="updated_by" type="VARCHAR" length="50" jt="12" mandatory="y" />
+			<column name="updated_on" type="DATE" jt="91" mandatory="y" >
+				<defo><![CDATA[curdate()]]></defo>
+			</column>
+			<index name="pk_staff" unique="PRIMARY_KEY" >
+				<column name="id" />
+			</index>
+			<index name="unq_staff_staff_id" unique="UNIQUE_KEY" >
+				<column name="staff_id" />
+			</index>
+			<options><![CDATA[engine=InnoDB]]></options>
+		</table>
+	</schema>
+	<connector name="MySql" database="MySql" driver_class="com.mysql.jdbc.Driver" driver_jar="mysql-connector-java-8.0.29.jar" driver_desc="Standard" host="localhost" port="3306" instance="kot" user="root" />
+	<layout name="Main Layout" id="Layout-18bb" show_relation="columns" >
+		<entity schema="kot" name="avail_status" color="C1D8EE" x="64" y="464" />
+		<entity schema="kot" name="avail_table" color="C1D8EE" x="608" y="288" />
+		<entity schema="kot" name="avail_type" color="C1D8EE" x="48" y="352" />
+		<entity schema="kot" name="bill" color="C1D8EE" x="128" y="592" />
+		<entity schema="kot" name="category" color="C1D8EE" x="880" y="416" />
+		<entity schema="kot" name="customer" color="C1D8EE" x="624" y="48" />
+		<entity schema="kot" name="dine_group" color="C1D8EE" x="352" y="688" />
+		<entity schema="kot" name="hall" color="C1D8EE" x="784" y="224" />
+		<entity schema="kot" name="items_inventory" color="C1D8EE" x="864" y="640" />
+		<entity schema="kot" name="kot" color="C1D8EE" x="240" y="192" />
+		<entity schema="kot" name="menu_items" color="C1D8EE" x="592" y="496" />
+		<entity schema="kot" name="orders" color="C1D8EE" x="400" y="448" />
+		<entity schema="kot" name="staff" color="C1D8EE" x="448" y="48" />
+	</layout>
+</project>
